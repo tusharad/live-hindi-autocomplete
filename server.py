@@ -54,9 +54,13 @@ def home_app(response):
 <body>
 <div class="container">
     <h1 class="text-center text-primary mt-3 mb-3">Hindi AutoComplete using SQLite3</h1>
-       
-        <textarea id="input" name="query" class="form-control form-control-lg"></textarea>
-        <span id="suggestions2"></span>
+    <button  type="button" class="btn btn-primary" href="" id="a">Download</button>
+    <button type="button" class="btn btn-warning" onclick="download()">Save</button>
+        <textarea rows="4" style="border:solid black 1px" id="input" name="query" class="form-control form-control-lg">
+         
+        </textarea>
+
+       <span id="suggestions2"></span>
         <span id="suggestions"></span>
  </div>
  <script type="text/javascript">
@@ -79,10 +83,10 @@ def home_app(response):
 
             var html = '<ul class="list-group" >';
 			for(var cnt = 0;cnt < freqMap.length;cnt++){
-                if (freqMap[cnt].substr(0, word.length) == word){
+                if (freqMap[cnt].substr(0, word.length) == word && word != ""){
                     console.log("from client console");
 					var regular_expression = new RegExp('(' + query + ')', 'gi');
-					html += '<a href="#" class="list-group-item list-group-item-action" onclick="get_text(this)">' + freqMap[cnt].replace(regular_expression, '<span class="text-primary ">$1</span>') + '</a>';
+					html += '<a href="#" style="color:red" class="list-group-item list-group-item-action" onclick="get_text(this)">' + freqMap[cnt].replace(regular_expression, '<span class="text-primary ">$1</span>') + '</a>';
 				}
             }
 			html += '</ul>';
@@ -121,6 +125,15 @@ def home_app(response):
 		document.getElementById('suggestions').innerHTML = '';
 		document.getElementById('input').focus();
 	}
+
+    function download() {
+  var a = document.getElementById("a");
+  const content = document.getElementById('input').value;
+  var file = new Blob([content], {type: 'txt'});
+  a.href = URL.createObjectURL(file);
+  const d = new Date();
+  a.download = d;
+}
 </script>
 
 </body>
