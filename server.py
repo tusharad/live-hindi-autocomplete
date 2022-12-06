@@ -82,25 +82,26 @@ def home_app(response):
         end: end
     }
 }
+var caret = null;
 
 $("textarea").on("click keyup", function () {
-    var caret = getCaretPosition(this);
+   caret = getCaretPosition(this);
     var endPos = this.value.indexOf(' ',caret.end);
     if (endPos ==-1) endPos = this.value.length;
     var result = /\S+$/.exec(this.value.slice(0, endPos));
     var lastWord = result ? result[0] : null;
     if (lastWord) lastWord = lastWord.replace(/['";:,.\/?\\-]$/, ''); // remove punctuation
-   console.log(lastWord)
+
    var word = lastWord;
 if(word){
             storeClientCache(word);
-            getData(word);
+            getData(word,caret);
        }     
 
 });
 
 
-    function getData(query) {
+    function getData(query,caret) {
 		fetch('/search?query=' + query + '').then(function (response) {
             var stringObj = localStorage['wordFreq'] || '[]';
             freqMap = JSON.parse(stringObj);
@@ -142,11 +143,19 @@ if(word){
         }
 
     function get_text(event) {
+        var str = document.getElementById('input').value;
+        console.log(caret);
+    
+    var endPos = str.indexOf(' ',caret.end);
+    if (endPos ==-1) endPos = str.length;
+    var result = /\S+$/.exec(str.slice(0, endPos));
+    var lastWord = result ? result[0] : null;
+    if (lastWord) lastWord = lastWord.replace(/['";:,.\/?\\-]$/, ''); // remove punctuation
+
+
 		var text = event.textContent;
-		var str = document.getElementById('input').value;
-		var lastIndex = str.lastIndexOf(" ");
-		str = str.substring(0, lastIndex) + " ";
-		document.getElementById('input').value = str + text + " ";
+        str = str.replace(lastWord,text);    
+		document.getElementById('input').value = str;
 		document.getElementById('suggestions').innerHTML = '';
 		document.getElementById('input').focus();
 	}
