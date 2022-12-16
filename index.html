@@ -139,7 +139,10 @@
 
 
             var text = event.textContent;
-            str = str.replace(lastWord, text);
+            var start = endPos - lastWord.length;
+            var end = endPos;
+            str = str.substr(0,endPos - lastWord.length) + text + " " +str.substr(endPos+1,str.length);
+
             document.getElementById('input').value = str;
             document.getElementById('suggestions').innerHTML = '';
             document.getElementById('input').focus();
