@@ -62,30 +62,37 @@
             let response = await fetch('/search?query=' + query + '');
             return response.json();
         }
-
+        a = []
         async function getData(query, caret) {
             let responseData = await fetchData(query, caret);
             var stringObj = localStorage['wordFreq'] || '[]';
             freqMap = JSON.parse(stringObj);
             var words = new Set();
-            for(var cnt = 0;cnt < freqMap.length && cnt != 10;cnt++){
+            for (var cnt = 0; cnt < freqMap.length && cnt != 10; cnt++) {
                 if (freqMap[cnt].substr(0, query.length) == query && query != "") {
                     words.add(freqMap[cnt]);
                 }
             }
-            for(var cnt = 0;cnt < responseData.length;cnt++){
+            for (var cnt = 0; cnt < responseData.length; cnt++) {
                 words.add(responseData[cnt][0]);
             }
-            console.log(words);
             a = Array.from(words);
+            console.log(a);
             var html = '<ul class="list-group">';
-            for (var cnt = 0;cnt < a.length;cnt++) {
+            for (var cnt = 0; cnt < a.length; cnt++) {
                 var regular_expression = new RegExp('(' + query + ')', 'gi');
-                html += '<a href="#" class="list-group-item list-group-item-action" onclick="get_text(this)">' + a[cnt].replace(regular_expression, '<span class="text-primary ">$1</span>') + '</a>';
+                html += '<font class="list-group-item list-group-item-action">' + (cnt + 1) + '. ' + '<a  onclick="get_text(this)">' + a[cnt].replace(regular_expression, '<span class="text-primary ">$1</span>') + '</font>' + '</a>';
             }
             html += '</ul>';
             document.getElementById('suggestions').innerHTML = html;
         }
+
+        document.onkeyup = function (e) {
+            if (e.altKey && e.which >= 49 && e.which <= 57) {
+                getTextFromShortcut((e.which - 48))
+            }
+        };
+
 
         function storeClientCache(query) {
             var stringObj = localStorage['wordFreq'] || '[]';
@@ -99,10 +106,31 @@
             localStorage['wordFreq'] = JSON.stringify(freqMap)
         }
 
+        function getTextFromShortcut(val) {
+            var str = document.getElementById('input').value;
+
+            var endPos = str.indexOf(' ', caret.end);
+            console.log("endPos",endPos);
+            if (endPos == -1) endPos = str.length;
+            var result = /\S+$/.exec(str.slice(0, endPos));
+
+            var pointedWord = result ? result[0] : null;
+            if (pointedWord) pointedWord = pointedWord.replace(/['";:,.\/?\\-]$/, ''); // remove punctuation
+
+
+            var suggestedWord = a[(val - 1)];
+            var start = endPos - pointedWord.length;
+            var end = endPos;
+            str = str.substr(0,endPos - pointedWord.length) + suggestedWord + " " +str.substr(endPos+1,str.length);
+
+            //str = str.replace(pointedWord, suggestedWord);
+            document.getElementById('input').value = str;
+            document.getElementById('suggestions').innerHTML = '';
+            document.getElementById('input').focus();
+        }
+
         function get_text(event) {
             var str = document.getElementById('input').value;
-            console.log(caret);
-
             var endPos = str.indexOf(' ', caret.end);
             if (endPos == -1) endPos = str.length;
             var result = /\S+$/.exec(str.slice(0, endPos));

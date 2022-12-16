@@ -31,11 +31,14 @@ def search(request):
     query = request.GET['query']
     cursorObj = conn.cursor()
 
-    cursorObj.execute(f"SELECT * FROM ONE_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 4")
+    cursorObj.execute(f"SELECT word FROM ONE_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 4")
     rows2 = cursorObj.fetchall()
 
-    cursorObj.execute(f"SELECT * FROM TWO_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 4")
+    cursorObj.execute(f"SELECT word FROM TWO_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 4")
     rows3 = cursorObj.fetchall()
+
+    #cursorObj.execute(f"SELECT word FROM THREE_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 4")
+    #rows4 = cursorObj.fetchall()
 
     return Response(json=rows2+rows3)
 
@@ -51,4 +54,5 @@ app_paths = {
 }
 
 httpd = make_server('',8000,main_app)
+print('server is running on http://localhost:8000')
 httpd.serve_forever()
