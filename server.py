@@ -37,7 +37,7 @@ def search(request):
     cursorObj.execute(f"SELECT word FROM TWO_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 4")
     rows3 = cursorObj.fetchall()
 
-    #cursorObj.execute(f"SELECT word FROM THREE_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 4")
+    #cursorObj.execute(f"SELECT word FROM THREE_WORD_FREQ WHERE word like \'{query}%\' order by count desc limit 10")
     #rows4 = cursorObj.fetchall()
 
     return Response(json=rows2+rows3)

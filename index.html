@@ -40,7 +40,7 @@
             }
         }
         var caret = null;
-
+        var semaphore = false;
         $("textarea").on("click keyup", function () {
             caret = getCaretPosition(this);
             var endPos = this.value.indexOf(' ', caret.end);
@@ -51,10 +51,9 @@
 
             var word = lastWord;
             if (word) {
-                storeClientCache(word);
-                getData(word, caret);
-            }
-
+                    storeClientCache(word);
+                    getData(word, caret);
+             }
         });
 
 
@@ -62,8 +61,13 @@
             let response = await fetch('/search?query=' + query + '');
             return response.json();
         }
+
         a = []
         async function getData(query, caret) {
+            if(query == ""){
+                a = [];
+                return {};
+            }
             let responseData = await fetchData(query, caret);
             var stringObj = localStorage['wordFreq'] || '[]';
             freqMap = JSON.parse(stringObj);
@@ -77,19 +81,19 @@
                 words.add(responseData[cnt][0]);
             }
             a = Array.from(words);
-            console.log(a);
             var html = '<ul class="list-group">';
-            for (var cnt = 0; cnt < a.length; cnt++) {
+            for (var cnt = 0; cnt < a.length && !semaphore; cnt++) {
                 var regular_expression = new RegExp('(' + query + ')', 'gi');
                 html += '<font class="list-group-item list-group-item-action">' + (cnt + 1) + '. ' + '<a  onclick="get_text(this)">' + a[cnt].replace(regular_expression, '<span class="text-primary ">$1</span>') + '</font>' + '</a>';
             }
             html += '</ul>';
             document.getElementById('suggestions').innerHTML = html;
+            semaphore = false;
         }
 
         document.onkeyup = function (e) {
             if (e.altKey && e.which >= 49 && e.which <= 57) {
-                getTextFromShortcut((e.which - 48))
+                getTextFromShortcut((e.which - 48));
             }
         };
 
@@ -107,10 +111,10 @@
         }
 
         function getTextFromShortcut(val) {
+            semaphore = true;
             var str = document.getElementById('input').value;
 
             var endPos = str.indexOf(' ', caret.end);
-            console.log("endPos",endPos);
             if (endPos == -1) endPos = str.length;
             var result = /\S+$/.exec(str.slice(0, endPos));
 
@@ -119,6 +123,7 @@
 
 
             var suggestedWord = a[(val - 1)];
+
             var start = endPos - pointedWord.length;
             var end = endPos;
             str = str.substr(0,endPos - pointedWord.length) + suggestedWord + " " +str.substr(endPos+1,str.length);
